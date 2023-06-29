@@ -31,13 +31,14 @@ public class DictionaryDaoImpl implements DictionaryDao {
     }
 
     @Override
-    public void addAbbreviation(String abbreviation, String originalPhrase) {
+    public void addAbbreviation(String abbreviation, String originalPhrase, String userName) {
 
-        String sql = "CALL ui_add_abbreviation(:abbreviation, :original_phrase)";
+        String sql = "CALL ui_add_abbreviation(:abbreviation, :original_phrase, :user_name)";
 
         SqlParameterSource source = new MapSqlParameterSource()
                 .addValue("abbreviation", abbreviation)
-                .addValue("original_phrase", originalPhrase);
+                .addValue("original_phrase", originalPhrase)
+                .addValue("user_name", userName);
 
         jdbcTemplate.update(sql, source);
     }

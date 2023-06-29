@@ -44,11 +44,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        CurrencyModel currencyModel = new CurrencyModel();
-        String currency = "";
+        String answer = "";
 
         if(update.hasMessage() && update.getMessage().hasText()) {
             String msg = update.getMessage().getText();
+            Chat chat = update.getMessage().getChat();
             long chatId = update.getMessage().getChatId();
 
             String regex = "^/add [А-Яа-я\\w0-9_-]{1,50} [А-Яа-я\\w\\s0-9_-]{2,256}$";
@@ -69,18 +69,20 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chatId, myInfo(update));
             } else if (msg.equals(Command.ABOUT.getCommand()) || msg.equals(Command.ABOUT.getInlineCommand())) {
                 sendMarkdownMessage(chatId, Command.ABOUT.getMsg());
+
+                // /add QR Quick Response
             } else if (pattern.matcher(msg).matches()) {
-                airlineDictionaryService.add(msg);
+                airlineDictionaryService.add(msg, chat.getUserName());
             } else {
                 try {
-                    currency = airlineDictionaryService.get(msg);
-                    if (Objects.isNull(currency)) {
-                        currency = "Аббревиатура не найдена";
+                    answer = airlineDictionaryService.get(msg);
+                    if (Objects.isNull(answer)) {
+                        answer = "Аббревиатура не найдена";
                     }
                 } catch (IOException e) {
-                    currency = "Ошибка ввода";
+                    answer = "Ошибка ввода";
                 }
-                sendMessage(chatId, currency);
+                sendMessage(chatId, answer);
             }
         }
 

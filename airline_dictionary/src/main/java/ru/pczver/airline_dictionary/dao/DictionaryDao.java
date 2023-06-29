@@ -4,5 +4,5 @@ public interface DictionaryDao {
 
     String getOriginalPhraseByAbbreviation(String abbreviation);
 
-    void addAbbreviation(String abbreviation, String originalPhrase);
+    void addAbbreviation(String abbreviation, String originalPhrase, String userName);
 }

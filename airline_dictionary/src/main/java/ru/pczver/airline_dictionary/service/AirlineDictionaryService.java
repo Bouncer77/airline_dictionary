@@ -20,7 +20,7 @@ public class AirlineDictionaryService {
         return dictionaryDao.getOriginalPhraseByAbbreviation(abbreviation.toUpperCase());
     }
 
-    public void add(String messageText) {
+    public void add(String messageText, String userName) {
         log.info("messageText: " + messageText);
         messageText = messageText.trim();
         // log.info("messageText after Trim: " + messageText);
@@ -39,6 +39,6 @@ public class AirlineDictionaryService {
         String originalPhrase = originalPhraseBuilder.toString();
         log.info("originalPhrase = " + originalPhrase);
 
-        dictionaryDao.addAbbreviation(abbreviation, originalPhrase);
+        dictionaryDao.addAbbreviation(abbreviation, originalPhrase, userName);
     }
 }

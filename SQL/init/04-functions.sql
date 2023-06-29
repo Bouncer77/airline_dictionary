@@ -2,8 +2,9 @@
 set search_path = 'air_api';
 
 ---------------------------------------- FUNCTIONS ----------------------------------------
-do $$
-declare
+DO
+$$
+DECLARE
     l_schemas text[] = array['air_api'];
     l_schema_name text;
     r record;
@@ -13,9 +14,9 @@ BEGIN
 SELECT max(version_id) INTO l_max_version_id_dbms_api FROM air_api."version";
 
 -- check version
-if (select "version" from air_api."version" v WHERE version_id = l_max_version_id_dbms_api) <> '0.0.1' then
+IF (select "version" from air_api."version" v WHERE version_id = l_max_version_id_dbms_api) <> '0.0.1' then
     raise exception 'Текущая версия DBMS API (%) отличается от необходимой версии (%) для выполнения скрипта!', (select * from air_api."version" v), '0.0.1' using errcode = '00001';
-end if;
+END IF;
 
 -- delete all functions/procedures in schema "air_api"
 foreach l_schema_name in array l_schemas loop
@@ -51,8 +52,6 @@ AS $function$
     END;
 $function$
     SET search_path = air_api, pg_temp;
-
-
 
 CREATE OR REPLACE PROCEDURE air_api.ui_add_abbreviation(v_abbreviation text, v_original_phrase text)
 	LANGUAGE plpgsql
