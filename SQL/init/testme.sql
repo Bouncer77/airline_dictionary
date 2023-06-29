@@ -26,3 +26,10 @@ select * from air_api."version" order by version_id desc ;
 select * from air_api.dictionary;
 
 select * from air_api."version" order by version_id desc ;
+
+
+---
+
+SELECT air_api.ui_get_dictionary_by_abbreviation('БПА');
+
+SELECT * from air_api.dictionary where abbreviation = 'БПА';

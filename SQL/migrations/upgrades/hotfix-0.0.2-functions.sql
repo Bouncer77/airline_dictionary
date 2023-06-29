@@ -73,6 +73,33 @@ AS $procedure$
 $procedure$
 	SET search_path = air_api, pg_temp;
 
+-- new 1
+CREATE OR REPLACE FUNCTION air_api.ui_get_dictionary_by_abbreviation(v_abbreviation text)
+	RETURNS TABLE (
+	    dictionary_id_var bigint,
+		abbreviation_var text,
+		original_phrase_var text,
+		user_name_var text
+    )
+	LANGUAGE plpgsql
+AS $function$
+	BEGIN
+
+		RETURN QUERY SELECT dictionary_id, abbreviation, original_phrase, user_name FROM dictionary WHERE abbreviation = v_abbreviation LIMIT 1;
+
+	END
+$function$
+	SET search_path = air_api, pg_temp;
+
+CREATE OR REPLACE PROCEDURE air_api.ui_dictionary_modify(v_user_name text, v_abbreviation text, v_original_phrase text)
+    LANGUAGE plpgsql
+AS $procedure$
+	BEGIN
+		UPDATE "dictionary" SET original_phrase = v_original_phrase WHERE abbreviation = v_abbreviation AND user_name = v_user_name;
+	END;
+$procedure$
+SET search_path = air_api, pg_temp;
+
     EXCEPTION
         when sqlstate '00001' then
             raise notice 'SQL ERROR: [%]: %', sqlstate, sqlerrm;

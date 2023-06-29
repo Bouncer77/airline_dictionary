@@ -39,6 +39,6 @@ public class AirlineDictionaryService {
         String originalPhrase = originalPhraseBuilder.toString();
         log.info("originalPhrase = " + originalPhrase);
 
-        dictionaryDao.addAbbreviation(abbreviation, originalPhrase, userName);
+        dictionaryDao.addAbbreviation(userName, abbreviation, originalPhrase);
     }
 }
