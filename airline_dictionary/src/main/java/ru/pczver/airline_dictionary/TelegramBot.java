@@ -47,34 +47,36 @@ public class TelegramBot extends TelegramLongPollingBot {
         CurrencyModel currencyModel = new CurrencyModel();
         String currency = "";
 
-        if(update.hasMessage() && update.getMessage().hasText()){
-            String messageText = update.getMessage().getText();
+        if(update.hasMessage() && update.getMessage().hasText()) {
+            String msg = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
             String regex = "^/add [А-Яа-я\\w0-9_-]{1,50} [А-Яа-я\\w\\s0-9_-]{2,256}$";
             Pattern pattern = Pattern.compile(regex);
-
-            if (messageText.equals(Command.START.getCommand()) || messageText.equals(Command.START.getInlineCommand())) {
+            if (msg.equals(Command.START.getCommand()) || msg.equals(Command.START.getInlineCommand())) {
                 sendMessage(chatId, startCommandReceived(update));
-
-            } else if (messageText.equals(Command.ADD.getCommand()) || messageText.equals(Command.ADD.getInlineCommand())) {
-                // sendMarkdownMessage(chatId, Command.ADD.getMsg());
-
-                Formatter f = new Formatter();
-                String answer = f.format(Command.ADD.getMsg(), "123321").toString();
-                sendMarkdownMessage(chatId, answer);
-
-            } else if (pattern.matcher(messageText).matches()) {
-                // log.info(messageText);
-                airlineDictionaryService.add(messageText);
+            } else if (msg.equals(Command.ADD.getCommand()) || msg.equals(Command.ADD.getInlineCommand())) {
+                sendMarkdownMessage(chatId, Command.ADD.getMsg());
+            } else if (msg.equals(Command.DELETE.getCommand()) || msg.equals(Command.DELETE.getInlineCommand())) {
+                sendMessage(chatId, Command.DELETE.getMsg());
+            } else if (msg.equals(Command.MARKDOWN.getCommand()) || msg.equals(Command.MARKDOWN.getInlineCommand())) {
+                sendMessage(chatId, Command.MARKDOWN.getMsg());
+            } else if (msg.equals(Command.REPORT.getCommand()) || msg.equals(Command.REPORT.getInlineCommand())) {
+                sendMessage(chatId, Command.REPORT.getMsg());
+            } else if (msg.equals(Command.HELP.getCommand()) || msg.equals(Command.HELP.getInlineCommand())) {
+                sendMessage(chatId, Command.HELP.getMsg());
+            } else if (msg.equals(Command.MY_INFO.getCommand()) || msg.equals(Command.MY_INFO.getInlineCommand())) {
+                sendMessage(chatId, myInfo(update));
+            } else if (msg.equals(Command.ABOUT.getCommand()) || msg.equals(Command.ABOUT.getInlineCommand())) {
+                sendMarkdownMessage(chatId, Command.ABOUT.getMsg());
+            } else if (pattern.matcher(msg).matches()) {
+                airlineDictionaryService.add(msg);
             } else {
                 try {
-                    currency = airlineDictionaryService.get(messageText);
-
+                    currency = airlineDictionaryService.get(msg);
                     if (Objects.isNull(currency)) {
                         currency = "Аббревиатура не найдена";
                     }
-
                 } catch (IOException e) {
                     currency = "Ошибка ввода";
                 }
@@ -82,6 +84,11 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         }
 
+    }
+
+    private String myInfo(Update update) {
+        Formatter f = new Formatter();
+        return f.format(Command.MY_INFO.getMsg(), update.getMessage().getChat().toString()).toString();
     }
 
     // отправляет приветствие после набора команды /start в telegram

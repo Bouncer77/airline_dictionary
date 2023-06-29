@@ -17,7 +17,7 @@ public class AirlineDictionaryService {
     private final DictionaryDao dictionaryDao;
 
     public String get(String abbreviation) throws IOException {
-        return dictionaryDao.getOriginalPhraseByAbbreviation(abbreviation);
+        return dictionaryDao.getOriginalPhraseByAbbreviation(abbreviation.toUpperCase());
     }
 
     public void add(String messageText) {
