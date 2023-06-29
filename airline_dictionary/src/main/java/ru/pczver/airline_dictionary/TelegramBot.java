@@ -5,15 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.pczver.airline_dictionary.config.BotConfig;
+import ru.pczver.airline_dictionary.config.Command;
 import ru.pczver.airline_dictionary.model.CurrencyModel;
 import ru.pczver.airline_dictionary.service.AirlineDictionaryService;
 import ru.pczver.airline_dictionary.service.CurrencyService;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Formatter;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -21,6 +25,8 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
+
+    public static final String BOT_NAME = "@airline_dictionary_bot";
 
     private final BotConfig botConfig;
 
@@ -48,8 +54,16 @@ public class TelegramBot extends TelegramLongPollingBot {
             String regex = "^/add [А-Яа-я\\w0-9_-]{1,50} [А-Яа-я\\w\\s0-9_-]{2,256}$";
             Pattern pattern = Pattern.compile(regex);
 
-            if (messageText.equals("/start")) {
-                startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+            if (messageText.equals(Command.START.getCommand()) || messageText.equals(Command.START.getInlineCommand())) {
+                sendMessage(chatId, startCommandReceived(update));
+
+            } else if (messageText.equals(Command.ADD.getCommand()) || messageText.equals(Command.ADD.getInlineCommand())) {
+                // sendMarkdownMessage(chatId, Command.ADD.getMsg());
+
+                Formatter f = new Formatter();
+                String answer = f.format(Command.ADD.getMsg(), "123321").toString();
+                sendMarkdownMessage(chatId, answer);
+
             } else if (pattern.matcher(messageText).matches()) {
                 // log.info(messageText);
                 airlineDictionaryService.add(messageText);
@@ -71,18 +85,32 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     // отправляет приветствие после набора команды /start в telegram
-    private void startCommandReceived(Long chatId, String name) {
-        String answer = "Привет, " + name + ", добро пожаловать в словарь авиакомпаний!" + "\n" +
-                "Введи аббревиатуру, словосочетание которой ты хочешь узнать!\n" +
-                "Например: ТГО";
-        sendMessage(chatId, answer);
+    private String startCommandReceived(Update update) {
+        Chat chat = update.getMessage().getChat();
+        String name = chat.getFirstName();
+        String lastName = chat.getLastName();
+        lastName = lastName == null?"":(" " + lastName); // если существует
+        Formatter f = new Formatter();
+        return f.format(Command.START.getMsg(), name, lastName).toString();
     }
 
     // через id чата отправляет пользователю сообщение в telegram
-    private void sendMessage(Long chatId, String textToSend){
+    private void sendMessage(Long chatId, String textToSend) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(textToSend);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException ignored) {
+
+        }
+    }
+
+    private void sendMarkdownMessage(Long chatId, String textToSend) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+        sendMessage.setText(textToSend);
+        sendMessage.enableMarkdownV2(true);
         try {
             execute(sendMessage);
         } catch (TelegramApiException ignored) {
