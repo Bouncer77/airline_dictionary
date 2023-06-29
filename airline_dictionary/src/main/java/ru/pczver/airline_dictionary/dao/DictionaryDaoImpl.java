@@ -22,11 +22,23 @@ public class DictionaryDaoImpl implements DictionaryDao {
     @Override
     public String getOriginalPhraseByAbbreviation(String abbreviation) {
 
-        String sql = "SELECT * FROM air_api.ui_get_original_phrase(:abbreviation)";
+        String sql = "SELECT * FROM ui_get_original_phrase(:abbreviation)";
 
         SqlParameterSource source = new MapSqlParameterSource()
                 .addValue("abbreviation", abbreviation);
 
         return jdbcTemplate.queryForObject(sql, source, String.class);
+    }
+
+    @Override
+    public void addAbbreviation(String abbreviation, String originalPhrase) {
+
+        String sql = "CALL ui_add_abbreviation(:abbreviation, :original_phrase)";
+
+        SqlParameterSource source = new MapSqlParameterSource()
+                .addValue("abbreviation", abbreviation)
+                .addValue("original_phrase", originalPhrase);
+
+        jdbcTemplate.update(sql, source);
     }
 }

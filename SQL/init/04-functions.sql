@@ -52,5 +52,19 @@ AS $function$
 $function$
     SET search_path = air_api, pg_temp;
 
+
+
+CREATE OR REPLACE PROCEDURE air_api.ui_add_abbreviation(v_abbreviation text, v_original_phrase text)
+	LANGUAGE plpgsql
+AS $procedure$
+	BEGIN
+        INSERT INTO air_api.dictionary
+	        (abbreviation, original_phrase)
+        VALUES
+            (v_abbreviation, v_original_phrase);
+	END;
+$procedure$
+	SET search_path = air_api, pg_temp;
+
 end;
 $$;

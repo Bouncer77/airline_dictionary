@@ -1,6 +1,7 @@
 package ru.pczver.airline_dictionary;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -13,9 +14,12 @@ import ru.pczver.airline_dictionary.service.CurrencyService;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final BotConfig botConfig;
@@ -41,24 +45,26 @@ public class TelegramBot extends TelegramLongPollingBot {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
-            switch (messageText){
-                case "/start":
-                    startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
-                    break;
-                default:
-                    try {
-                        // currency = CurrencyService.getCurrencyRate(messageText, currencyModel);
-                        currency = airlineDictionaryService.get(messageText);
+            String regex = "^/add [А-Яа-я\\w0-9_-]{1,50} [А-Яа-я\\w\\s0-9_-]{2,256}$";
+            Pattern pattern = Pattern.compile(regex);
 
-                    } catch (IOException e) {
-                        sendMessage(chatId, "We have not found such a currency." + "\n" +
-                                "Enter the currency whose official exchange rate" + "\n" +
-                                "you want to know in relation to BYN." + "\n" +
-                                "For example: USD");
-                    } /*catch (ParseException e) {
-                        throw new RuntimeException("Unable to parse date");
-                    }*/
-                    sendMessage(chatId, currency);
+            if (messageText.equals("/start")) {
+                startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+            } else if (pattern.matcher(messageText).matches()) {
+                // log.info(messageText);
+                airlineDictionaryService.add(messageText);
+            } else {
+                try {
+                    currency = airlineDictionaryService.get(messageText);
+
+                    if (Objects.isNull(currency)) {
+                        currency = "Аббревиатура не найдена";
+                    }
+
+                } catch (IOException e) {
+                    currency = "Ошибка ввода";
+                }
+                sendMessage(chatId, currency);
             }
         }
 
@@ -66,10 +72,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     // отправляет приветствие после набора команды /start в telegram
     private void startCommandReceived(Long chatId, String name) {
-        String answer = "Hi, " + name + ", nice to meet you!" + "\n" +
-                "Enter the currency whose official exchange rate" + "\n" +
-                "you want to know in relation to BYN." + "\n" +
-                "For example: USD";
+        String answer = "Привет, " + name + ", добро пожаловать в словарь авиакомпаний!" + "\n" +
+                "Введи аббревиатуру, словосочетание которой ты хочешь узнать!\n" +
+                "Например: ТГО";
         sendMessage(chatId, answer);
     }
 
@@ -80,7 +85,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         sendMessage.setText(textToSend);
         try {
             execute(sendMessage);
-        } catch (TelegramApiException e) {
+        } catch (TelegramApiException ignored) {
 
         }
     }
