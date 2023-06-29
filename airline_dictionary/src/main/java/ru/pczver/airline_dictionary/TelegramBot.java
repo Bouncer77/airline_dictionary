@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.pczver.airline_dictionary.config.BotConfig;
 import ru.pczver.airline_dictionary.model.CurrencyModel;
+import ru.pczver.airline_dictionary.service.AirlineDictionaryService;
 import ru.pczver.airline_dictionary.service.CurrencyService;
 
 import java.io.IOException;
@@ -18,6 +19,8 @@ import java.text.ParseException;
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final BotConfig botConfig;
+
+    private final AirlineDictionaryService airlineDictionaryService;
 
     @Override
     public String getBotUsername() {
@@ -44,16 +47,17 @@ public class TelegramBot extends TelegramLongPollingBot {
                     break;
                 default:
                     try {
-                        currency = CurrencyService.getCurrencyRate(messageText, currencyModel);
+                        // currency = CurrencyService.getCurrencyRate(messageText, currencyModel);
+                        currency = airlineDictionaryService.get(messageText);
 
                     } catch (IOException e) {
                         sendMessage(chatId, "We have not found such a currency." + "\n" +
                                 "Enter the currency whose official exchange rate" + "\n" +
                                 "you want to know in relation to BYN." + "\n" +
                                 "For example: USD");
-                    } catch (ParseException e) {
+                    } /*catch (ParseException e) {
                         throw new RuntimeException("Unable to parse date");
-                    }
+                    }*/
                     sendMessage(chatId, currency);
             }
         }

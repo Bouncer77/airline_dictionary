@@ -1,0 +1,23 @@
+spring:
+    profiles:
+        active: "local"
+
+---
+spring:
+    config:
+        activate:
+            on-profile: "local"
+
+    datasource:
+        driver: org.postgresql.Driver
+        address: localhost:5432
+        database: db_ref_air
+        schemaName: air_api
+        username: air_ta
+        password: Q6jR0hjqjn
+
+    bot:
+        name: airline_dictionary_bot
+        token: CHANGEME
+
+
