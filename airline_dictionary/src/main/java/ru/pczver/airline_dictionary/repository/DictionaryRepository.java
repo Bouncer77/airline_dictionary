@@ -45,7 +45,9 @@ public class DictionaryRepository implements DictionaryDao {
         try {
             dictionary = jdbcTemplate.queryForObject(sqlGetDictionaryRec, sourceGetDictionaryRec, new DictionaryRowMapper());
         } catch (Exception e) {
+            log.info("Запись не найдена");
             log.error(e.toString());
+            return null;
         }
 
         return dictionary;

@@ -11,7 +11,7 @@
 
 	<groupId>ru.pc-zver</groupId>
 	<artifactId>airline_dictionary</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<name>airline_dictionary</name>
 	<description>airline_dictionary</description>
 	<packaging>jar</packaging>

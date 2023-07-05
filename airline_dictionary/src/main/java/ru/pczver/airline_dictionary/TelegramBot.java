@@ -47,9 +47,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         String answer = "";
 
         if(update.hasMessage() && update.getMessage().hasText()) {
-            String msg = update.getMessage().getText();
+
+            String msg = update.getMessage().getText().trim();
             Chat chat = update.getMessage().getChat();
             long chatId = update.getMessage().getChatId();
+            log.info("user: " + chat.getUserName() + " : command: " + msg);
 
             String regAdd = "^/add [А-Яа-я\\w0-9_-]{1,50} [А-Яа-я\\w\\s0-9_-]{2,256}$";
             Pattern patternAdd = Pattern.compile(regAdd);
@@ -66,8 +68,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                 long code = airlineDictionaryService.report(chat.getUserName(), msg);
                 sendMarkdownMessage(chatId, "Сообщение принято в поддержку, код сообщения: *" + code + "*");
             } else if (patternDelete.matcher(msg).matches()) {
+                log.info("command Delete");
                 String abbreviation = airlineDictionaryService.delete(chat.getUserName(), msg);
-                sendMarkdownMessage(chatId, abbreviation);
+                sendMessage(chatId, abbreviation);
             } else if (msg.equals(Command.ADD.getCommand()) || msg.equals(Command.ADD.getInlineCommand())) {
                 sendMarkdownMessage(chatId, Command.ADD.getMsg());
             } else if (msg.equals(Command.DELETE.getCommand()) || msg.equals(Command.DELETE.getInlineCommand())) {

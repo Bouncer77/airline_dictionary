@@ -2,6 +2,7 @@ package ru.pczver.airline_dictionary.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
@@ -83,22 +84,28 @@ public class AirlineDictionaryService {
 
     public String delete(String userName, String msg) {
         log.info("user: " + userName + "command: delete, messageText: " + msg);
-        String abbreviation = msg.trim().substring(8); // Удаляем название команды и пробел - "/delete "
+        String abbreviation = msg.substring(8); // Удаляем название команды и пробел - "/delete "
         log.info("abbreviation: " + abbreviation);
 
-        Dictionary dictionary = dictionaryDao.getDictionaryByAbbreviation(abbreviation);
+        Dictionary dictionary = null;
+        try {
+             dictionary = dictionaryDao.getDictionaryByAbbreviation(abbreviation);
 
-        // Такой аббревиатуры нет - удаление не требуется
-        if (Objects.isNull(dictionary)) {
-            return abbreviation + " (не существует, удаление не требуется";
-        } else {
-            log.info(dictionary.toString());
-            // Проверка прав на удаление
-            if (userName.equals(dictionary.getUserName())) {
-                return dictionaryDao.delete(userName, abbreviation);
-            } else {
-                return "У вас нет прав на удаление аббревиатуры: " + abbreviation;
-            }
+             if (dictionary != null) {
+                 log.info(dictionary.toString());
+                 // Проверка прав на удаление
+                 if (userName.equals(dictionary.getUserName())) {
+                     return dictionaryDao.delete(userName, abbreviation);
+                 } else {
+                     return "У вас нет прав на удаление аббревиатуры: " + abbreviation;
+                 }
+             } else {
+                 return abbreviation + " (не существует, удаление не требуется)";
+             }
+
+        } catch (EmptyResultDataAccessException e) {
+            log.info("Аббревиатура " + abbreviation + " в бд не найдена");
+            return abbreviation + " (не существует, удаление не требуется)";
         }
     }
 }
