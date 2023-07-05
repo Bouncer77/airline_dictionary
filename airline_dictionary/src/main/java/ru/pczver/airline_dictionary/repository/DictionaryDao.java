@@ -11,4 +11,6 @@ public interface DictionaryDao {
     Dictionary getDictionaryByAbbreviation(String abbreviation);
 
     void updateAbbreviation(String userName, String abbreviation, String originalPhrase);
+
+    Long report(String userName, String msg);
 }

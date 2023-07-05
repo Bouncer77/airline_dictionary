@@ -100,6 +100,24 @@ AS $procedure$
 $procedure$
 SET search_path = air_api, pg_temp;
 
+CREATE OR REPLACE FUNCTION air_api.ui_add_report(v_user_name text, v_msg text)
+        RETURNS bigint
+        LANGUAGE plpgsql
+    AS
+$function$
+    DECLARE
+        l_report_id            numeric:= nextval('report_id_sequence');
+    BEGIN
+        INSERT INTO report
+            (report_id, user_name, msg)
+        VALUES
+            (l_report_id, v_user_name, v_msg);
+
+        RETURN l_report_id;
+    END;
+$function$
+    SET search_path = air_api, pg_temp;
+
     EXCEPTION
         when sqlstate '00001' then
             raise notice 'SQL ERROR: [%]: %', sqlstate, sqlerrm;

@@ -27,13 +27,13 @@ public class AirlineDictionaryService {
 
 
 
-    public String add(String messageText, String userName) {
-        log.info("messageText: " + messageText);
-        messageText = messageText.trim();
+    public String add(String msg, String userName) {
+        log.info("messageText: " + msg);
+        msg = msg.trim();
         // log.info("messageText after Trim: " + messageText);
-        messageText = messageText.substring(5); // remove - "/add "
+        msg = msg.substring(5); // remove - "/add "
         // log.info("messageText after substring: " + messageText);
-        List<String> list = new ArrayList<>(List.of(messageText.split(" ")));
+        List<String> list = new ArrayList<>(List.of(msg.split(" ")));
         // list.forEach(System.out::println);
 
         String abbreviation = list.get(0).toUpperCase();
@@ -71,5 +71,13 @@ public class AirlineDictionaryService {
                     " - " + originalPhrase);
             return "Добавлено " + abbreviation;
         }
+    }
+
+    public long report(String msg, String userName) {
+        log.info("command: report, messageText: " + msg);
+        msg = msg.trim();
+        msg = msg.substring(8); // Удаляем название команды и пробел - "/report "
+        log.info(msg);
+        return dictionaryDao.report(userName, msg);
     }
 }

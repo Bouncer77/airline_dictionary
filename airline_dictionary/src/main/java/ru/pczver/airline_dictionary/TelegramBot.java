@@ -54,13 +54,13 @@ public class TelegramBot extends TelegramLongPollingBot {
             String regAdd = "^/add [А-Яа-я\\w0-9_-]{1,50} [А-Яа-я\\w\\s0-9_-]{2,256}$";
             Pattern patternAdd = Pattern.compile(regAdd);
 
-            String regReport = "^/report [А-Яа-я\\w\\s0-9_-]{2,256}$";
+            String regReport = "^/report [А-Яа-я\\w\\s,0-9_-]{2,256}$";
             Pattern patternReport = Pattern.compile(regReport);
 
             if (msg.equals(Command.START.getCommand()) || msg.equals(Command.START.getInlineCommand())) {
                 sendMessage(chatId, startCommandReceived(update));
             } else if (patternReport.matcher(msg).matches()) {
-                long code = 123L;
+                long code = airlineDictionaryService.report(msg, chat.getUserName());
                 sendMarkdownMessage(chatId, "Сообщение принято в поддержку, код сообщения: *" + code + "*");
             } else if (msg.equals(Command.ADD.getCommand()) || msg.equals(Command.ADD.getInlineCommand())) {
                 sendMarkdownMessage(chatId, Command.ADD.getMsg());
