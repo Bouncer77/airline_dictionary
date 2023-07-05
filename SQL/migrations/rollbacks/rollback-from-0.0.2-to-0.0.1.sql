@@ -25,6 +25,8 @@ END IF;
 
     ALTER TABLE air_api.dictionary DROP COLUMN IF EXISTS user_name;
 
+    DROP TABLE IF EXISTS air_api.report CASCADE;
+
     EXCEPTION
         when sqlstate '00001' then
             raise notice 'SQL ERROR: [%]: %', sqlstate, sqlerrm;

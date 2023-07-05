@@ -51,10 +51,17 @@ public class TelegramBot extends TelegramLongPollingBot {
             Chat chat = update.getMessage().getChat();
             long chatId = update.getMessage().getChatId();
 
-            String regex = "^/add [А-Яа-я\\w0-9_-]{1,50} [А-Яа-я\\w\\s0-9_-]{2,256}$";
-            Pattern pattern = Pattern.compile(regex);
+            String regAdd = "^/add [А-Яа-я\\w0-9_-]{1,50} [А-Яа-я\\w\\s0-9_-]{2,256}$";
+            Pattern patternAdd = Pattern.compile(regAdd);
+
+            String regReport = "^/report [А-Яа-я\\w\\s0-9_-]{2,256}$";
+            Pattern patternReport = Pattern.compile(regReport);
+
             if (msg.equals(Command.START.getCommand()) || msg.equals(Command.START.getInlineCommand())) {
                 sendMessage(chatId, startCommandReceived(update));
+            } else if (patternReport.matcher(msg).matches()) {
+                long code = 123L;
+                sendMarkdownMessage(chatId, "Сообщение принято в поддержку, код сообщения: *" + code + "*");
             } else if (msg.equals(Command.ADD.getCommand()) || msg.equals(Command.ADD.getInlineCommand())) {
                 sendMarkdownMessage(chatId, Command.ADD.getMsg());
             } else if (msg.equals(Command.DELETE.getCommand()) || msg.equals(Command.DELETE.getInlineCommand())) {
@@ -71,7 +78,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMarkdownMessage(chatId, Command.ABOUT.getMsg());
 
                 // /add QR Quick Response
-            } else if (pattern.matcher(msg).matches()) {
+            } else if (patternAdd.matcher(msg).matches()) {
                 String response = airlineDictionaryService.add(msg, chat.getUserName());
                 sendMessage(chatId, response);
             } else {
@@ -83,7 +90,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 } catch (IOException e) {
                     answer = "Ошибка ввода";
                 }
-                sendMessage(chatId, answer);
+                sendMarkdownMessage(chatId, "*" + msg + "*\n" + answer);
             }
         }
 
