@@ -79,6 +79,24 @@ public class DictionaryRepository implements DictionaryDao {
     }
 
     @Override
+    public String delete(String userName, String abbreviation) {
+        String result;
+        final String sql = "SELECT * FROM ui_delete_abbreviation(:user_name, :abbreviation)";
+        SqlParameterSource param = new MapSqlParameterSource()
+                .addValue("user_name", userName)
+                .addValue("abbreviation", abbreviation);
+
+        try {
+            result = jdbcTemplate.queryForObject(sql, param, String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Не удалось удалить аббревиатуру: " + abbreviation;
+        }
+
+        return result;
+    }
+
+    @Override
     public void addAbbreviation(String userName, String abbreviation, String originalPhrase) {
 
         String sql = "CALL ui_add_abbreviation(:abbreviation, :original_phrase, :user_name)";

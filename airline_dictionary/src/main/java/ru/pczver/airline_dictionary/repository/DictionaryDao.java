@@ -13,4 +13,6 @@ public interface DictionaryDao {
     void updateAbbreviation(String userName, String abbreviation, String originalPhrase);
 
     Long report(String userName, String msg);
+
+    String delete(String userName, String abbreviation);
 }

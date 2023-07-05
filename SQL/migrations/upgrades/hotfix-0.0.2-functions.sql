@@ -118,6 +118,20 @@ $function$
 $function$
     SET search_path = air_api, pg_temp;
 
+CREATE OR REPLACE FUNCTION air_api.ui_delete_abbreviation(v_user_name text, v_abbreviation text)
+        RETURNS text
+        LANGUAGE plpgsql
+    AS
+$function$
+    BEGIN
+        -- Добавить проверку пользователя
+        DELETE FROM dictionary WHERE abbreviation = v_abbreviation;
+
+        RETURN v_abbreviation;
+    END;
+$function$
+    SET search_path = air_api, pg_temp;
+
     EXCEPTION
         when sqlstate '00001' then
             raise notice 'SQL ERROR: [%]: %', sqlstate, sqlerrm;

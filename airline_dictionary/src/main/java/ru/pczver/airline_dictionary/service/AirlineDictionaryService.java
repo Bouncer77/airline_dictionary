@@ -73,11 +73,32 @@ public class AirlineDictionaryService {
         }
     }
 
-    public long report(String msg, String userName) {
+    public long report(String userName, String msg) {
         log.info("command: report, messageText: " + msg);
         msg = msg.trim();
         msg = msg.substring(8); // Удаляем название команды и пробел - "/report "
         log.info(msg);
         return dictionaryDao.report(userName, msg);
+    }
+
+    public String delete(String userName, String msg) {
+        log.info("user: " + userName + "command: delete, messageText: " + msg);
+        String abbreviation = msg.trim().substring(8); // Удаляем название команды и пробел - "/delete "
+        log.info("abbreviation: " + abbreviation);
+
+        Dictionary dictionary = dictionaryDao.getDictionaryByAbbreviation(abbreviation);
+
+        // Такой аббревиатуры нет - удаление не требуется
+        if (Objects.isNull(dictionary)) {
+            return abbreviation + " (не существует, удаление не требуется";
+        } else {
+            log.info(dictionary.toString());
+            // Проверка прав на удаление
+            if (userName.equals(dictionary.getUserName())) {
+                return dictionaryDao.delete(userName, abbreviation);
+            } else {
+                return "У вас нет прав на удаление аббревиатуры: " + abbreviation;
+            }
+        }
     }
 }
