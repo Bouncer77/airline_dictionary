@@ -72,7 +72,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
                 // /add QR Quick Response
             } else if (pattern.matcher(msg).matches()) {
-                airlineDictionaryService.add(msg, chat.getUserName());
+                String response = airlineDictionaryService.add(msg, chat.getUserName());
+                sendMessage(chatId, response);
             } else {
                 try {
                     answer = airlineDictionaryService.get(msg);

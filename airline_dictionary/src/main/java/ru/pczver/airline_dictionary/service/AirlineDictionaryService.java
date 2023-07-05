@@ -2,12 +2,17 @@ package ru.pczver.airline_dictionary.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
-import ru.pczver.airline_dictionary.dao.DictionaryDao;
+import ru.pczver.airline_dictionary.mapper.DictionaryRowMapper;
+import ru.pczver.airline_dictionary.model.Dictionary;
+import ru.pczver.airline_dictionary.repository.DictionaryDao;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +25,9 @@ public class AirlineDictionaryService {
         return dictionaryDao.getOriginalPhraseByAbbreviation(abbreviation.toUpperCase());
     }
 
-    public void add(String messageText, String userName) {
+
+
+    public String add(String messageText, String userName) {
         log.info("messageText: " + messageText);
         messageText = messageText.trim();
         // log.info("messageText after Trim: " + messageText);
@@ -39,6 +46,30 @@ public class AirlineDictionaryService {
         String originalPhrase = originalPhraseBuilder.toString();
         log.info("originalPhrase = " + originalPhrase);
 
-        dictionaryDao.addAbbreviation(userName, abbreviation, originalPhrase);
+
+        Dictionary dictionary = dictionaryDao.getDictionaryByAbbreviation(abbreviation);
+
+        // Такая запись уже существует
+        if (Objects.nonNull(dictionary)) {
+            log.info(dictionary.toString());
+
+            // Если запись принадлежит текущему пользователю
+            if (userName.equals(dictionary.getUserName())) {
+                dictionaryDao.updateAbbreviation(userName, abbreviation, originalPhrase);
+                log.info("Пользователь " + userName + " обновил свю аббревиатуру " + abbreviation +
+                        " на " + originalPhrase);
+                return "Обновлено " + abbreviation;
+            } else {
+                log.info(userName + "попытался обновить запись " + abbreviation + " на " + originalPhrase +
+                        ", но у данного пользователя нет прав это сделать," +
+                        "так как владельце аббревиатуры является пользователь " + dictionary.getUserName());
+                return "Такая аббревиатура уже добавлена, и у вас нет прав перезаписать ее";
+            }
+        } else {
+            dictionaryDao.addAbbreviation(userName, abbreviation, originalPhrase);
+            log.info("Пользователь " + userName + " добавил новую аббревиатуру " + abbreviation +
+                    " - " + originalPhrase);
+            return "Добавлено " + abbreviation;
+        }
     }
 }
